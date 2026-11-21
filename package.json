@@ -1,0 +1,55 @@
+{
+  "name": "dsh-data-backup",
+  "version": "0.1.0",
+  "description": "DSH 数据备份（dsh-data-backup）：把 DSH 的全部命根子数据——会话、附件、技能、人格记忆、插件数据、插件配置与源码——按分类做全量快照，落到独立备份盘；附独立还原脚本，DSH 重装后也能原样长回来。纯本地文件操作，不花模型。",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.1-rc.2"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "backup",
+    "snapshot",
+    "disaster-recovery"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abcd20241629/dsh-data-backup.git"
+  },
+  "main": "lib/host.js",
+  "exports": {
+    ".": "./lib/host.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "tests",
+    "assets",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node tests/smoke.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "slots"
+      ],
+      "external": [
+        "react"
+      ]
+    }
+  }
+}
