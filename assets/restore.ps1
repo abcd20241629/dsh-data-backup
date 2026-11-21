@@ -154,6 +154,7 @@ if (-not $DryRun) {
   Write-Host '  [1/2] safety copy of what is about to be replaced ...' -ForegroundColor Cyan
   foreach ($t in $targets) {
     $dest = [string]$t.dest
+    if ([string]::IsNullOrWhiteSpace($dest) -or $t.kind -eq 'generated') { continue }
     if (-not (Test-Path $dest)) { continue }
     $safeName = ($dest -replace '[\\/:]', '_')
     $sub = Join-Path $SafetyDir $safeName
@@ -195,6 +196,12 @@ foreach ($t in $targets) {
   $parts = $rel -split '/'
   $snapDir = Join-Path $Root ($parts -join '\')
   $dest = [string]$t.dest
+
+  if ($t.kind -eq 'generated') {
+    Write-Host "        SKIP $rel  (generated list, view only)" -ForegroundColor DarkGray
+    $report += [pscustomobject]@{ Target = $rel; Status = 'skipped-generated'; Files = 0 }
+    continue
+  }
 
   if (-not (Test-Path $snapDir)) {
     Write-Host "        SKIP $rel  (not in snapshot)" -ForegroundColor DarkYellow

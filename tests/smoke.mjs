@@ -169,11 +169,16 @@ test('config: 保留策略（7 天 + 4 周）', () => {
 test('plan: buildPlan 覆盖到所有关键分类', () => {
   const cats = buildPlan({ dshHome: 'D:\\dsh\\.dsh', withCodex: true, withAttachments: true })
   const ids = cats.map((c) => c.id)
-  for (const need of ['sessions', 'attachments', 'skills', 'memory', 'plugin-data', 'config', 'plugin-src', 'codex']) {
+  for (const need of ['sessions', 'attachments', 'skills', 'memory', 'plugin-data', 'plugin-list', 'config', 'plugin-src', 'codex']) {
     assert.ok(ids.includes(need), `缺分类 ${need}`)
   }
   for (const c of cats) {
     assert.ok(c.label && c.label.length > 0)
+    if (c.generated) {
+      // 生成型分类（插件清单）不拷目录，现场算文件
+      assert.ok(Array.isArray(c.sources))
+      continue
+    }
     assert.ok(Array.isArray(c.sources) && c.sources.length > 0)
     for (const s of c.sources) {
       assert.ok(s.kind === 'dir' || s.kind === 'glob')

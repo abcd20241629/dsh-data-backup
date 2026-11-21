@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0
+
+新增「插件清单」——重装 DSH 时最值钱的那份地址簿。
+
+### 新增
+- **插件清单分类**：扫 `profiles/web/package.json` 依赖，按来源分四类（`git` / `npm` / `vendor tgz` / `link:` 本地目录），每项带实际安装版本、`git remote get-url origin`、当前分支、未提交文件数，产出 `plugin-list.md`（人看）与 `plugin-list.json`（机器读）。
+- 面板快照行新增「清单」按钮，内联看名录；新增 `GET /data-backup/api/plugin-list?id=` 端点。
+- 还原链路识别生成型数据：`plugin-list` 不参与还原（它不是活数据），不计失败、不写后悔药。
+
+### 修复
+- 演练（dryRun）不再被 `confirm` 拦住。
+- 空源（当时就是 0 文件的目录）还原时标 `empty` 而不是 `missing`，不再把演练结果误判为失败。
+
 ## 0.1.0
 
 首个可用版本。

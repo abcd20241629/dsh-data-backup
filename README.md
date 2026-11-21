@@ -30,6 +30,7 @@ DSH（DeepSeek Harness）的**重要数据全量快照备份**插件。
 | 记忆与人格 | `digital-life/`、`fish-memory/`、`memory-core/`、日记与夜话配置 |
 | 插件数据 | `plugins-data/`、`storages/`、行程、Aurabot、语音、项目笔记、注入器 |
 | 配置与密钥 | `.credentials.yaml`、`AGENTS.md`、cordis 装配、profile 依赖清单、本地 tgz、启动脚本 |
+| 插件清单 | 每个插件的来源地址 + 版本 + 装回命令（`plugin-list.md` / `.json`），重装照这份拉起 |
 | 插件源码 | 本地 link 的插件包（已剪 `node_modules`、`.git`） |
 | Codex 数据 | `~/.codex`：会话、技能、插件、sqlite 索引（可关） |
 
@@ -46,6 +47,7 @@ F:\dsh重要数据备份\
 ├─ _before-restore\        ← 还原前自动存的后悔药
 ├─ 会话数据\<id>\sessions\...
 ├─ 技能数据\<id>\skills\...
+├─ 插件清单\<id>\plugin-list.md   ← 插件名录：来源 + 版本 + 装回命令
 └─ ...
 ```
 
@@ -90,8 +92,22 @@ git clone https://github.com/abcd20241629/dsh-data-backup.git
 - **手动**：面板「立即备份」，或让 agent 调 `backup_run`。
 - **校验**：面板「校验」或 `backup_verify`。浅校验比重走一遍文件数/字节数；深校验逐文件算 sha256。
 - **还原**：面板「还原」或 `_restore.ps1`。还原前自动把即将被覆盖的内容抄到 `_before-restore/`。
+- **清单**：面板「清单」列出那份快照里的插件名录（名字 / 来源 git 地址或 npm 包 / 版本 / 装回命令）。
 
 还原是**合并式**的：同名文件被快照版本替换，目标目录里快照没有的文件保留。最坏情况是「没还原干净」，不会「把新东西抹了」。
+
+## 重装 DSH 之后
+
+1. 装回 DSH 本体（`D:\dsh`）与 pnpm 依赖。
+2. 把 `配置与密钥\<id>\` 里的 `.credentials.yaml`、`AGENTS.md`、`profiles\web\package.json`、`cordis*.yml` 拷回原位。
+3. 打开 `插件清单\<id>\plugin-list.md`，逐个照命令装：
+   - git 来源：`git clone <repo> D:\dsh\plugins\<name>` 再 `dev_install_package`；
+   - npm 来源：`npm i <name>@<version>`；
+   - vendor tgz：拷回 `配置与密钥\<id>\...` 里的 tgz 再 `file:` 装。
+4. 跑 `_restore.ps1 -Snapshot <id>` 把会话、技能、记忆、插件数据放回去。
+5. 重启 DSH，登录还在、记忆还在、会话列表还在。
+
+插件源码不必备份——有地址就能重新拉；备份的是**地址簿**。
 
 ## 给 agent 的工具
 
@@ -138,6 +154,7 @@ lib/config.js    配置、快照命名、保留策略（纯函数）
 lib/snapshot.js  备份执行器
 lib/verify.js    校验
 lib/restore.js   还原
+lib/plugins.js   插件名录：扫 profile 依赖 + git 远端 + 实际版本，产出 plugin-list.md/json
 lib/host.js      宿主半边：路由 / 定时 / 工具
 lib/client.js    网页半边：设置页面板
 assets/          _README.md 与 _restore.ps1 的模板

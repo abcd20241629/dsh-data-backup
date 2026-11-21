@@ -26,6 +26,7 @@ F:\dsh重要数据备份\
 ├─ 记忆与人格\             ← digital-life / fish-memory / memory-core / 日记与夜话配置
 ├─ 插件数据\               ← plugins-data / storages / 行程 / Aurabot / 语音 / 项目笔记 / 注入器
 ├─ 配置与密钥\             ← .credentials.yaml、AGENTS.md、cordis 装配、profile 依赖清单、本地 tgz、启动脚本
+├─ 插件清单\               ← 每个插件的来源地址 + 版本 + 装回命令（plugin-list.md / plugin-list.json）
 ├─ 插件源码\               ← 本地 link 的插件包（已剪 node_modules / .git）
 └─ Codex 数据\             ← ~/.codex（会话、技能、插件、sqlite 索引）
 ```
@@ -85,13 +86,26 @@ powershell -ExecutionPolicy Bypass -File .\_restore.ps1 -DryRun
 
 意思是：把左边这个目录里的东西，拷回右边这个路径。照着一条条拷就行。
 
-## 五、还原之后
+## 五、重装 DSH 之后（最常走的场景）
+
+1. 装回 DSH 本体与 pnpm 依赖（`D:\dsh`）。
+2. 拷回门面：`配置与密钥\<id>\` 里的 `.credentials.yaml`、`AGENTS.md`、`profiles\web\package.json`、`cordis*.yml`、启动脚本。
+3. 打开 `插件清单\<id>\plugin-list.md`，**照着装插件**：
+   - `git` 来源 → `git clone <地址> D:\dsh\plugins\<name>`，再在 profile 里装；
+   - `npm` 来源 → `npm i <包名>@<版本>`；
+   - `vendor tgz` → 从 `配置与密钥\<id>\` 里找同名 tgz 装。
+4. `_restore.ps1 -Snapshot <id>` 把会话、技能、记忆、插件数据放回去。
+5. 重启 DSH —— 登录态、记忆、会话列表都还在。
+
+插件源码故意不重点备份：**有地址就能重新拉，地址簿比源码更值钱**。
+
+## 六、还原之后
 
 1. **重启 DSH**（`D:\dsh\dsh.cmd` 或原来的启动方式）。
 2. 如果插件没自己回来，看 `配置与密钥\...\profiles\web\package.json` 里的依赖清单和 `cordis.patch.yml` 的装配块。
 3. 密钥是**明文**存在 `配置与密钥` 里 —— 这个目录别上传 GitHub、别丢进公开网盘。
 
-## 六、注意
+## 七、注意
 
 - **合并式还原**：同名文件被快照版本替换，目标目录里快照没有的文件**保留**。最坏情况是「没还原干净」，不会「把新东西抹了」。
 - 会话文件在备份途中可能还在被写入，这类文件会被记为「热文件」写进 manifest，下次备份会补上。看到 `hot > 0` 不用慌。
